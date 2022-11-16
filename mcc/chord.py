@@ -1,6 +1,22 @@
 import re
 from .note import Note
 
+
+# distance of each notes from root
+chordTypes = {
+  "":[0,4,7], #Nothing specified means Major triad
+  "7":[0,4,10],
+  "M":[0,4,7],
+  "M7":[0,4,7,11],
+  "69":[0,4,7,9,14],
+  "m":[0,3,7],
+  "m6":[0,3,7,9],
+  "m7":[0,3,7,10],
+  "°":[0,3,6,9],
+  "dim":[0,3,6,9],
+  "m7b5":[0,3,7,9]
+}  
+
 class Chord:
 
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
@@ -56,18 +72,3 @@ class Chord:
   def __str__(self):
     return f"{self.root.name}{self.type}"
   
-
-# distance of each notes from root
-chordTypes = {
-  "":[0,4,7], #Nothing specified means Major triad
-  "7":[0,4,10],
-  "M":[0,4,7],
-  "M7":[0,4,7,11],
-  "69":[0,4,7,9,14],
-  "m":[0,3,7],
-  "m6":[0,3,7,9],
-  "m7":[0,3,7,10],
-  "°":[0,3,6,9],
-  "dim":[0,3,6,9],
-  "m7b5":[0,3,7,9]
-}  
