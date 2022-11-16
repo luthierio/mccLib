@@ -28,6 +28,7 @@ class Chord:
     self.bass = ''
     self.intervals = []
     self.notes = []
+    self.notesNames = []
     
     if isinstance(chord, str):
       self.parseLiteralChord(chord)
@@ -38,20 +39,20 @@ class Chord:
     self.name = lc
     chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°]*)?([/][A-Z][b|#]?)?', lc)
     self.root = Note(chordParts.group(1))
-    self.alt = chordParts.group(3) if chordParts.group(3) else ''
+    self.sign = chordParts.group(3) if chordParts.group(3) else ''
     self.type = chordParts.group(4) if chordParts.group(4) else ''
     if chordParts.group(5):
-    	self.bass = Note(chordParts.group(5)[1:])
+    	self.bass = Note(chordParts.group(5)[1:],self.sign)
     
     self.intervals = chordTypes[self.type]
     self.update()
           
   
   def getNotesNames(self):
-    notNames = []
+    self.notesNames = []
     for note in self.notes:
-      notNames.append(note.name)
-    return notNames
+      self.notesNames.append(note.name)
+    return self
     
   def transpose(self, interval):
     self.root.transpose(interval)
@@ -60,14 +61,18 @@ class Chord:
             
   def update(self):
     self.notes = []
+    self.notesNames = []
     if isinstance(self.bass,Note):
       self.notes.append(self.bass)
+      self.notesNames.append(self.bass.name)
     for interval in self.intervals:
-      self.notes.append(Note(self.root.num+interval,self.alt))
+      note = Note(self.root.index+interval,self.sign)
+      self.notes.append(note)
+      self.notesNames.append(note.name)
     return self
   
   def print(self):
-    print(self,'\t',self.type,'\t',self.bass,'\t',self.intervals,'\t',self.getNotesNames())
+    print(self,'\t',self.type,'\t',self.bass,'\t',self.intervals,'\t',self.notesNames)
     
   def __str__(self):
     return f"{self.root.name}{self.type}"

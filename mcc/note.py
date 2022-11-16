@@ -17,26 +17,26 @@ noteNames = ["C","","D","","E","F","","G","","A","","B"]
 class Note:
   
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
-  def __init__(self, note, keyType = ''):
+  def __init__(self, note, sign = ''):
     
-    self.keyType =  keyType
+    self.sign =  sign
     
     self.root = '' #Si altération, la racine de la note: C#, root = C
     self.name = ''
     self.temperName = ''
-    self.num = ''
+    self.index = ''
 
     if isinstance(note, str):
     
-      if self.keyType == '' and len(note) > 1:    
-        self.keyType = note[1]
+      if self.sign == '' and len(note) > 1:    
+        self.sign = note[1]
         
-      self.num = self.getNumFromName(note)
-      self.name = self.getNameFromNum(self.num)
+      self.index = self.getIndexFromName(note)
         
     elif isinstance(note, int):
-      self.num = self.getIndexFromNum(note)
-      self.name = self.getNameFromNum(self.num)
+      self.index = self.getIndexFromNum(note)
+    
+    self.name = self.getNameFromIndex(self.index)
   
       
   def getIndexFromNum(self,num):
@@ -46,17 +46,17 @@ class Note:
       num = 12+num
     return num
               
-  def getNameFromNum(self,num):
+  def getNameFromIndex(self,num):
       
     if noteNames[num]:
       return noteNames[num]
     else:        
-      if self.keyType == 'b':
+      if self.sign == 'b':
         return noteNames[num+1]+'b'
       else:
         return noteNames[num-1]+'#'
         
-  def getNumFromName(self,name): 
+  def getIndexFromName(self,name): 
    
       alt = 0    
       if len(name) > 1:
@@ -72,8 +72,7 @@ class Note:
       return self.getIndexFromNum(noteNames.index(root)+alt)
            
   def transpose(self,interval):  
-   self.num = self.getIndexFromNum(self.num+interval)
-   self.name = self.getNameFromNum(self.num)
+   self.__init__(self.index+interval,self.sign)
    return self
     
     

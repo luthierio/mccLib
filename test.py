@@ -13,7 +13,8 @@
 from mcc.note import Note
 from mcc.chord import Chord
 from mcc.key import Key
-
+from mcc.tools import *
+"""
 Chord('Am').print()
 Chord('Am6').print()
 Chord('Am7').print()
@@ -54,11 +55,32 @@ for x in cycle:
 for x in cycle:
   Key(x+"#m").print()  
 print('----------')
+for x in cycle:
+  Key(x+"m").print()
+  print('=>')
+  Key(x+"m").transpose(-2).print()
+  print('')
+  
+print('----------')
 
 Key('A').transpose(0).print()
 Key('A').transpose(1).print()
 Key('A').transpose(2).print()
 Key('A').transpose(3).print()
+print('----------')
+
+Key('Am').transpose(0).print()
+Key('Am').transpose(1).print()
+Key('Am').transpose(2).print()
+Key('Am').transpose(3).print()
+print('----------')
+"""
+chord = Chord('Adim')
+key = Key('G')
+print(chord.notesNames)
+print(key.notesNames)
+print(isDiatonic(chord,key), getNonDiatonicNotes(chord,key))
+
 
 
 """

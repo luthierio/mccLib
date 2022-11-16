@@ -19,21 +19,24 @@ minorScale = [0,2,3,5,7,8,10]
 class Key:
   
   #key is a note
-  def __init__(self, key = 'C'):
+  def __init__(self, key = 'C', simplify = True):
   
     keyParts = re.search('(([ABCDEFG])([b|#])?)([mM])?', key)
     self.src = key
     self.notes = []    
+    self.notesNames = []   
     
-    self.root = Note(keyParts.group(1))
-    self.alt =  keyParts.group(3) if keyParts.group(3) else ''  
-    self.type = keyParts.group(4) if keyParts.group(4) else ''  
-    
+    self.root = Note(keyParts.group(1)) 
+    self.sign = ''  
+    self.type = keyParts.group(4) if keyParts.group(4) else '' 
     if self.type == 'm':
       self.relative = Note(self.root.name).transpose(+3)
     else:
       self.relative = Note(self.root.name).transpose(-3)
-    self.simplifyKey()   
+      
+    if simplify:
+      self.simplifyKey()  
+    self.setSignature()
     self.setNotes()
     self.setName()
     
@@ -47,6 +50,7 @@ class Key:
     for fromkey, tokey in equiv.items():
       if self.root.name == fromkey:
         self.root = Note(tokey)
+        self.__init__(self.root.name+self.type)
     
     if self.type =='m': 
       substitutions = {
@@ -66,32 +70,45 @@ class Key:
     for fromkey, tokey in substitutions.items():
       if self.root.name == fromkey:
         self.root = Note(tokey)
-
+        self.__init__(self.root.name+self.type)
+    return self
+    
+  def setSignature(self):
+    if self.type == 'm' and self.root.name in ["Ab","Eb","Bb","F","C","G","D"]: 
+      self.sign = 'b'
+    elif self.type == 'm' and self.root.name in ["E","B","F#","C#","G#","D#","A#"]: 
+      self.sign = '#'
+    elif self.type != 'm' and self.root.name in ["Cb","Gb","Db","Ab","Eb","Bb","F"]: 
+      self.sign = 'b'
+    elif self.type != 'm' and self.root.name in ["G","D","A","E","B","F#","C#"]: 
+      self.sign = '#'
+  
   def setNotes(self):
     self.notes = []
+    self.notesNames = []
     if self.type =='m': 
       scale = minorScale
     else:
       scale = majorScale
       
     for noteNum in scale:
-      self.notes.append(Note(self.root.num+noteNum, self.root.keyType).name)    
+      note = Note(self.root.index+noteNum, self.sign)
+      self.notes.append(note)   
+      self.notesNames.append(note.name)   
     return self
       
   def setName(self):  
-    self.name = self.root.name+self.root.keyType
+    self.name = self.root.name+self.type
     return self
         
   def transpose(self,interval):
     self.root.transpose(interval)
-    self.__init__(self.root.name)
+    self.__init__(self.root.name+self.type)
     return self
     
-  def isSimplified(self):
-    return True if self.src != self.name else False
     
   def print(self):
-    print(self,'\t',self.alt,'\t',self.isSimplified(),'\t',self.src,self.notes)
+    print(self,'\t',self.root.name,'\t',self.type,'\t',self.name,'\t',self.sign,'\t',self.notesNames)
     
   def __str__(self):
     return f"{self.root}{self.type}"
