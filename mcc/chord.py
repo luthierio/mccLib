@@ -20,7 +20,7 @@ class Chord:
   def parseLiteralChord(self,lc):
     
     self.name = lc
-    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°]*)?([/][A-Z])?', lc)
+    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°]*)?([/][A-Z][b|#]?)?', lc)
     self.root = Note(chordParts.group(1))
     self.alt = chordParts.group(3) if chordParts.group(3) else ''
     self.type = chordParts.group(4) if chordParts.group(4) else ''
@@ -28,7 +28,7 @@ class Chord:
     	self.bass = Note(chordParts.group(5)[1:])
     
     self.intervals = chordTypes[self.type]
-    self.setNotes()
+    self.update()
           
   
   def getNotesNames(self):
@@ -39,10 +39,10 @@ class Chord:
     
   def transpose(self, interval):
     self.root.transpose(interval)
-    self.setNotes()
+    self.update()
     return self
             
-  def setNotes(self):
+  def update(self):
     self.notes = []
     if isinstance(self.bass,Note):
       self.notes.append(self.bass)

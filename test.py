@@ -12,12 +12,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from mcc.note import Note
 from mcc.chord import Chord
+from mcc.tone import Tone
 
 Chord('Am').print()
 Chord('Am6').print()
 Chord('Am7').print()
 Chord('A').print()
 Chord('A/C').print()
+Chord('A/C#').print()
+Chord('A/Db').print()
 Chord('A7').print()
 Chord('Am7b5').print()
 Chord('A°').print()
@@ -28,6 +31,11 @@ Chord('Ab').print()
 Chord('Abm6').print()
 Chord('Abm6').transpose(1).print()
 Chord('Abm6').transpose(-149).print()
+print('----------')
+Tone('A').print()
+Tone('Ab').print()
+Tone('C#').print()
+Tone('Fb').print()
 
 
 """

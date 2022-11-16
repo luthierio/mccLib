@@ -11,15 +11,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-_note_dict = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+
 noteNames = ["C","","D","","E","F","","G","","A","","B"]
 
 class Note:
   
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
-  def __init__(self, note, context = ''):
+  def __init__(self, note, keyType = ''):
     
-    self.context =  context if context else '#'
+    self.keyType =  keyType
     
     self.root = '' #Si altération, la racine de la note: C#, root = C
     self.alt = 0 # b = -1, # = +1
@@ -29,8 +29,8 @@ class Note:
 
     if isinstance(note, str):
     
-      if context == '' and len(note) > 1:    
-        self.context = note[1]
+      if self.keyType == '' and len(note) > 1:    
+        self.keyType = note[1]
         
       self.num = self.getNumFromName(note)
       self.name = self.getNameFromNum(self.num)
@@ -52,7 +52,7 @@ class Note:
     if noteNames[num]:
       return noteNames[num]
     else:        
-      if self.context == 'b':
+      if self.keyType == 'b':
         return noteNames[num+1]+'b'
       else:
         return noteNames[num-1]+'#'
@@ -77,5 +77,9 @@ class Note:
    self.name = self.getNameFromNum(self.num)
    return self
     
+    
+  def print(self):
+    print(self,'\t',self.name)
+    
   def __str__(self):
-    return f"{self.name} ({self.num})"
+    return f"{self.name}"
