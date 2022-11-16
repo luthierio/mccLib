@@ -31,11 +31,30 @@ Chord('Ab').print()
 Chord('Abm6').print()
 Chord('Abm6').transpose(1).print()
 Chord('Abm6').transpose(-149).print()
+
 print('----------')
-Key('A').print()
-Key('Ab').print()
-Key('C#').print()
-Key('Fb').print()
+cycle = ["F","C","G","D","A","E","B"]
+for x in cycle:
+  Key(x+"b").print()
+
+for x in cycle:
+  Key(x).print()
+  
+for x in cycle:
+  Key(x+"#").print()  
+
+print('----------')
+
+for x in cycle:
+  Key(x+"bm").print()
+
+for x in cycle:
+  Key(x+"m").print()
+  
+for x in cycle:
+  Key(x+"#m").print()  
+print('----------')
+
 Key('A').transpose(0).print()
 Key('A').transpose(1).print()
 Key('A').transpose(2).print()

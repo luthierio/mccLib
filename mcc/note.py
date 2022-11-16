@@ -22,7 +22,6 @@ class Note:
     self.keyType =  keyType
     
     self.root = '' #Si altération, la racine de la note: C#, root = C
-    self.alt = 0 # b = -1, # = +1
     self.name = ''
     self.temperName = ''
     self.num = ''
@@ -59,6 +58,7 @@ class Note:
         
   def getNumFromName(self,name): 
    
+      alt = 0    
       if len(name) > 1:
         nbrAlt = len(name)-1
         root = name[0]
@@ -68,7 +68,6 @@ class Note:
           alt = -nbrAlt
       else:
         root = name  
-        alt = 0    
       
       return self.getIndexFromNum(noteNames.index(root)+alt)
            
