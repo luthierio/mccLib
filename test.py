@@ -10,19 +10,24 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from lib.note import Note
-from lib.chord import Chord
+from mcc.note import Note
+from mcc.chord import Chord
 
-aChord = Chord('Am')
-print(aChord,aChord.intervals,aChord.getNotesNames())
-aChord = Chord('Am6')
-print(aChord,aChord.intervals,aChord.getNotesNames())
-aChord = Chord('Ab')
-print(aChord,aChord.intervals,aChord.getNotesNames())
-aChord = Chord('Abm6')
-print(aChord,aChord.intervals,aChord.getNotesNames())
-aChord.transpose(1)
-print(aChord,aChord.intervals,aChord.getNotesNames())
+Chord('Am').print()
+Chord('Am6').print()
+Chord('Am7').print()
+Chord('A').print()
+Chord('A/C').print()
+Chord('A7').print()
+Chord('Am7b5').print()
+Chord('A°').print()
+Chord('Adim').print()
+Chord('CM7').print()
+Chord('C69').print()
+Chord('Ab').print()
+Chord('Abm6').print()
+Chord('Abm6').transpose(1).print()
+Chord('Abm6').transpose(-149).print()
 
 
 """
