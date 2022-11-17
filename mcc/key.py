@@ -10,6 +10,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    Simon Daron 2022
+
 import re
 from .note import Note
 #! numéros de notes, donc intervales depuis la fondamentale des notes de la gamme

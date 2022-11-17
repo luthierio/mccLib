@@ -1,0 +1,21 @@
+name: Blue Drag
+composer: Joe Myrow
+year: 1932
+version: Dfb
+tempo: 80
+key: Em
+structure: AA'BA
+rythm: Ballad
+mcc:
+  AA':
+  - '{: Em Em | C#ø C7 | Em Em | C#ø C7 |'
+  - '| Em | F#ø |1 C7 B7 | Em B7 :}'
+  - '|2 C7 B7 | Em |'
+  B:
+  - '| Am | ÷| Em | ÷|'
+  - '| Am | ÷| Em Em | C7 B7 |'
+  A:
+  - '| Em Em | C#ø C7 | Em Em | C#ø C7 |'
+  - '| Em | F#ø | C7 B7 | Em B7 |'
+  C:
+  - '| Em Em | C#ø C7 | Em Em | C#ø C7 |'
