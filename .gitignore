@@ -2,3 +2,4 @@ venv
 documentation
 mcc/__pycache__
 mcc/__pycache__/
+src/dist/
