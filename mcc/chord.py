@@ -29,7 +29,9 @@ chordTypes = {
   "°":[0,3,6,9],
   "dim":[0,3,6,9],
   "m7b5":[0,3,7,9],
-  "ø":[0,3,7,9]
+  "ø":[0,3,7,9],
+  "+":[0,4,8,10],
+  "5+":[0,4,8,10],
 }  
 
 class Chord:
@@ -54,7 +56,7 @@ class Chord:
     
       
     self.name = lc
-    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°ø]*)?([/][A-Z][b|#]?)?', lc)
+    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°ø+]*)?([/][A-Z][b|#]?)?', lc)
     if not chordParts:
       raise Exception("Format d'accord incorrect", lc,self.chord)
       
@@ -74,22 +76,14 @@ class Chord:
       self.notesNames.append(note.name)
     return self
     
-  def transpose(self, interval):
+  def transpose(self, interval, sign = ''):
   
-    self.root.transpose(interval)
+    self.root.transpose(interval, sign)
     if self.bass:
-      self.bass.transpose(interval)
-    self.__init__(self.getName())
+      self.bass.transpose(interval, sign)
+    self.__init__(self.__str__())
     
     return self
-    
-  def getName(self):
-  
-    if self.bass:
-      return self.root.name+self.type+'/'+self.bass.name
-    else:
-      return self.root.name+self.type
-  
   
   def update(self):
     self.notes = []
@@ -107,5 +101,9 @@ class Chord:
     print(self,'\t',self.type,'\t',self.bass,'\t',self.intervals,'\t',self.notesNames)
     
   def __str__(self):
-    return f"{self.root.name}{self.type}"
+  
+    if self.bass:
+      return self.root.name+self.type+'/'+self.bass.name
+    else:
+      return self.root.name+self.type
   

@@ -71,9 +71,11 @@ class Note:
       
       return self.getIndexFromNum(noteNames.index(root)+alt)
            
-  def transpose(self,interval):  
-   self.__init__(self.index+interval,self.sign)
-   return self
+  def transpose(self,interval,sign = ''):  
+    if not sign:
+      sign = self.sign
+    self.__init__(self.index+interval,sign)
+    return self
     
     
   def print(self):

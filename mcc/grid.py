@@ -27,8 +27,8 @@ class Grid:
   def __init__(self, yamlGrid):
     self.raw = yamlGrid 
     self.src = yaml.safe_load(yamlGrid)
-    self.mcc = self.src['mcc']
-    self.grid = self.parseMcc(self.mcc)
+    self.key = Key(self.src['key'])
+    self.grid = self.parseMcc(self.src['grid'])
       
   def parseMcc(self,mcc):
     grid = {}
@@ -54,15 +54,14 @@ class Grid:
     return measures
         
   def transpose(self,interval):  
-    key =  Key(self.src['key'])
-    key.transpose(interval)
-    self.src['key'] = key.name
+    self.key.transpose(interval)
+    self.src['key'] = self.key.name
     
     for name, section in self.grid.items():
       for line in section:
         for measure in line:
           for chord in measure.chords:
-            chord.transpose(interval)
+            chord.transpose(interval, self.key.sign)
     return self
           
   def yamlify(self):
@@ -84,18 +83,19 @@ class Grid:
     
   def __str__(self):
     dist = self.src
-    dist['mcc'] = self.yamlify()
-    return yaml.dump(dist, default_flow_style=False,allow_unicode=True, sort_keys=False,line_break=True)
+    dist['grid'] = self.yamlify()
+    return yaml.dump(dist, default_flow_style=False,allow_unicode=True, sort_keys=False,indent=True)
       
 #****************
 # Measure Class
 
 class mccMeasure:
 
-  def __init__(self, measure):
+  def __init__(self, measure,beats = 2):
     self.src = measure.strip()
     self.measure = measure.strip()
     self.chords = []  
+    self.beats = beats
     self.coda = False
     self.repeat = False
     self.repeatStart = False
@@ -121,18 +121,27 @@ class mccMeasure:
     txtMeasure = ''
     if self.repeatStart:
       txtMeasure += ':'
-    if self.coda:
+    elif self.coda:
       txtMeasure += f'{self.coda}'
+    else:
+      txtMeasure += ' '
       
     txtMeasure += ' '
       
     if self.repeat:
       txtMeasure += '÷'
+      for x in range(0, self.beats):
+        txtMeasure += '   '
     else:
       for chord in self.chords :
         txtMeasure += chord.__str__()+' '
+      if len(self.chords) < self.beats:
+        for x in range(len(self.chords), self.beats):
+          txtMeasure += '   '
       
     if self.repeatEnd:
       txtMeasure += ':'
+    else:
+      txtMeasure += ' '
     return txtMeasure
    

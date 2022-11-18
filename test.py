@@ -17,12 +17,14 @@ from mcc.chord import Chord
 from mcc.key import Key
 from mcc.tools import *
 from mcc.grid import Grid
+from pathlib import Path
 
-f = open('./src/Blue drag.mcc','r')
-grid = f.read()
-print(grid)
-print(Grid(grid))
-print(Grid(grid).transpose(2).saveTo('./dist/Blue drag.mcc (Em)'))
-#Grid('./src/Blue drag.mcc').print().transpose(2).print().save('./dist/Blue drag.mcc').transpose(-2).print()
+Path('./test/dist/Bb/').mkdir(parents=True, exist_ok=True)
+Path('./test/dist/Eb/').mkdir(parents=True, exist_ok=True)
 
+files = Path('./test/src/').glob('*.mcc')
+for file in files:
+  theGrid = Grid(file.read_text())
+  theGrid.transpose(2).saveTo('./test/dist/Bb/'+theGrid.src['name']+' ('+theGrid.key.name+').mcc')
+  theGrid.transpose(-3).saveTo('./test/dist/Eb/'+theGrid.src['name']+' ('+theGrid.key.name+').mcc')
 

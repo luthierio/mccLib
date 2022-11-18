@@ -21,8 +21,11 @@ minorScale = [0,2,3,5,7,8,10]
 class Key:
   
   #key is a note
-  def __init__(self, key = 'C', simplify = True):
+  def __init__(self, key = 'C', **options):
   
+    default = {'simplify':True}
+    options = {**default, **options}
+    
     keyParts = re.search('(([ABCDEFG])([b|#])?)([mM])?', key)
     self.src = key
     self.notes = []    
@@ -36,7 +39,7 @@ class Key:
     else:
       self.relative = Note(self.root.name).transpose(-3)
       
-    if simplify:
+    if options['simplify']:
       self.simplifyKey()  
     self.setSignature()
     self.setNotes()
