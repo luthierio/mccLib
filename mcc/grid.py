@@ -13,7 +13,6 @@
 #    Simon Daron 2022
 
 import yaml
-import frontmatter
 import re
 import sys
 import os
