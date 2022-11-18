@@ -118,6 +118,9 @@ class mccMeasure:
         self.chords.append(Chord(chord.strip()))
     
   def __str__(self):
+  
+    max_chord_lenght = 10
+    
     txtMeasure = ''
     if self.repeatStart:
       txtMeasure += ':'
@@ -129,15 +132,17 @@ class mccMeasure:
     txtMeasure += ' '
       
     if self.repeat:
-      txtMeasure += '÷'
+      txtMeasure += '÷ '
       for x in range(0, self.beats):
-        txtMeasure += '   '
+        txtMeasure += ' '*(max_chord_lenght)
     else:
       for chord in self.chords :
         txtMeasure += chord.__str__()+' '
+        for x in range(len(chord.__str__()), max_chord_lenght):
+          txtMeasure += ' '
       if len(self.chords) < self.beats:
         for x in range(len(self.chords), self.beats):
-          txtMeasure += '   '
+          txtMeasure += ' '*(max_chord_lenght+1)
       
     if self.repeatEnd:
       txtMeasure += ':'
