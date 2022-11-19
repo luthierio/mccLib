@@ -12,9 +12,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
 
-from mcc.note import Note
-from mcc.chord import Chord
-from mcc.key import Key
+from .Note import Note
+from .Chord import Chord
+from .Key import Key
 
 def isDiatonic(Chord, Key):
   test = True

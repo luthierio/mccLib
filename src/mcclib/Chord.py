@@ -13,7 +13,7 @@
 #    Simon Daron 2022
 
 import re
-from .note import Note
+from .Note import Note
 
 
 # distance of each notes from root

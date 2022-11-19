@@ -31,10 +31,10 @@ import re
 import sys
 import os
     
-from mcc.note import Note
-from mcc.chord import Chord
-from mcc.key import Key
-from mcc.tools import *
+from .Note import Note
+from .Chord import Chord
+from .Key import Key
+from .Tools import *
 
 lineSplit = r'[\|\║\{\}]\s*[\|\║\{\}]'
 measureSplit = r'[\|\║\{\}]'

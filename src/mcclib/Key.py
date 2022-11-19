@@ -13,7 +13,7 @@
 #    Simon Daron 2022
 
 import re
-from .note import Note
+from .Note import Note
 #! numéros de notes, donc intervales depuis la fondamentale des notes de la gamme
 majorScale = [0,2,4,5,7,9,11]
 minorScale = [0,2,3,5,7,8,10]

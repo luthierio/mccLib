@@ -1,4 +1,4 @@
 venv
-mcc/__pycache__
-mcc/__pycache__/
-test/dist
+src/mcclib.egg-info
+build
+dist
