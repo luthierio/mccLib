@@ -13,6 +13,20 @@
 #    Simon Daron 2022
 
 import yaml
+from yaml.representer import SafeRepresenter
+
+class folded_unicode(str): pass
+class literal_unicode(str): pass
+
+def folded_unicode_representer(dumper, data):
+    return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='>')
+def literal_unicode_representer(dumper, data):
+    return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+
+yaml.add_representer(folded_unicode, folded_unicode_representer)
+yaml.add_representer(literal_unicode, literal_unicode_representer)
+
+from collections import namedtuple
 import re
 import sys
 import os
@@ -21,6 +35,9 @@ from mcc.note import Note
 from mcc.chord import Chord
 from mcc.key import Key
 from mcc.tools import *
+
+lineSplit = r'[\|\║\{\}]\s*[\|\║\{\}]'
+measureSplit = r'[\|\║\{\}]'
 
 class Grid: 
   def __init__(self, yamlGrid):
@@ -42,12 +59,17 @@ class Grid:
       for line in section:
         lines.append(self.parseLine(line))
     elif isinstance(section, str):
-      lines.append(self.parseLine(section))
+      if re.search(lineSplit, section):
+        for line in re.split(lineSplit, section):
+          lines.append(self.parseLine(line))
+      else:
+        lines.append(self.parseLine(section))
     return lines
       
   def parseLine(self,line):
+    line = line.replace("{","|").replace("}","|") #Simplify
     measures = []
-    for measure in re.split(r'\||\║|\{|\}', line):
+    for measure in re.split(measureSplit, line):
       if measure and measure.strip():
         measures.append(mccMeasure(measure)) 
     return measures
@@ -66,13 +88,13 @@ class Grid:
   def yamlify(self):
     sections = {}
     for name, section in self.grid.items():
-      sections[name] = []
+      sections[name] = ""
       for line in section:
         lineTxt = '|'
         for measure in line:          
           lineTxt += measure.__str__()+'|'
         lineTxt = lineTxt.replace("|:","{:").replace(":|",":}")
-        sections[name].append(lineTxt)
+        sections[name] += literal_unicode(u''+lineTxt+'\n')
     return sections
   
   def saveTo(self,path):
@@ -81,9 +103,12 @@ class Grid:
     return self
     
   def __str__(self):
-    dist = self.src
-    dist['grid'] = self.yamlify()
-    return yaml.dump(dist, default_flow_style=False,allow_unicode=True, sort_keys=False,indent=True)
+    dist = dict(self.src)
+    del dist['grid']    
+    result = yaml.dump(dist, default_flow_style=False,allow_unicode=True, sort_keys=False)
+    result += yaml.dump({'grid':self.yamlify()}, default_style='|', sort_keys=False,allow_unicode=True, default_flow_style=False,indent=True, width=float("inf"))
+    
+    return result
       
 #****************
 # Measure Class

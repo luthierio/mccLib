@@ -21,10 +21,16 @@ from pathlib import Path
 
 Path('./test/dist/Bb/').mkdir(parents=True, exist_ok=True)
 Path('./test/dist/Eb/').mkdir(parents=True, exist_ok=True)
+Path('./test/dist/src/').mkdir(parents=True, exist_ok=True)
 
 files = Path('./test/src/').glob('*.mcc')
 for file in files:
   theGrid = Grid(file.read_text())
   theGrid.transpose(2).saveTo('./test/dist/Bb/'+theGrid.src['name']+' ('+theGrid.key.name+').mcc')
   theGrid.transpose(-3).saveTo('./test/dist/Eb/'+theGrid.src['name']+' ('+theGrid.key.name+').mcc')
+
+files = Path('./test/dist/Bb/').glob('*.mcc')
+for file in files:
+  theGrid = Grid(file.read_text())
+  theGrid.transpose(-2).saveTo('./test/dist/src/'+theGrid.src['name']+' ('+theGrid.key.name+').mcc')
 
