@@ -28,9 +28,8 @@ class Note:
     self.index = ''
 
     if isinstance(note, str):
-    
+      self.root = note[0] 
       if len(note) > 1:    
-        self.root = note[0] 
         self.alt = note[1]
         self.sign = self.alt if self.sign == '' else self.sign 
         
