@@ -22,14 +22,17 @@ class Note:
     self.sign =  sign
     
     self.root = '' #Si altération, la racine de la note: C#, root = C
+    self.alt = ''
     self.name = ''
     self.temperName = ''
     self.index = ''
 
     if isinstance(note, str):
     
-      if self.sign == '' and len(note) > 1:    
-        self.sign = note[1]
+      if len(note) > 1:    
+        self.root = note[0] 
+        self.alt = note[1]
+        self.sign = self.alt if self.sign == '' else self.sign 
         
       self.index = self.getIndexFromName(note)
         

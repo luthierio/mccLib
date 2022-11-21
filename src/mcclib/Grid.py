@@ -132,8 +132,8 @@ class mccMeasure:
     self.measure = self.measure.replace(':','').replace(':','').strip()
     
     if re.match('\d+', self.measure):
-      self.coda = re.search('\d+', self.measure).group(0)
-      self.measure = self.measure.replace(self.coda,'').strip()      
+      self.coda = int(re.search('\d+', self.measure).group(0))
+      self.measure = self.measure.replace(str(self.coda),'').strip()      
     
     for chord in self.measure.split() :
       if chord.strip() == '÷' :
