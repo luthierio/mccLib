@@ -19,7 +19,7 @@ from .Key import Key
 def isDiatonic(Chord, Key):
   test = True
   for note in Chord.notes:
-    if note.name not in Key.notesNames:
+    if note.index not in Key.getNotesIndex():
       test = False
   return test
 
@@ -27,6 +27,6 @@ def isDiatonic(Chord, Key):
 def getNonDiatonicNotes(Chord, Key):
   nonDiatonic = []
   for note in Chord.notes:
-    if note.name not in Key.notesNames:
-      nonDiatonic.append(note.name)
+    if note.index not in Key.getNotesIndex():
+      nonDiatonic.append(note)
   return nonDiatonic      

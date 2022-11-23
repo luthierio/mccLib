@@ -16,7 +16,7 @@ import re
 from .Note import Note
 #! numéros de notes, donc intervales depuis la fondamentale des notes de la gamme
 majorScale = [0,2,4,5,7,9,11]
-minorScale = [0,2,3,5,7,8,10]
+minorScale = [0,2,3,5,7,8,10,11]
 
 class Key:
   
@@ -27,8 +27,9 @@ class Key:
     options = {**default, **options}
     
     keyParts = re.search('(([ABCDEFG])([b|#])?)([mM])?', key)
+    self.name = key
     self.src = key
-    self.notes = []    
+    self.notes = []   
     self.notesNames = []   
     
     self.root = Note(keyParts.group(1)) 
@@ -42,8 +43,9 @@ class Key:
     if options['simplify']:
       self.simplifyKey()  
     self.setSignature()
-    self.setNotes()
-    self.setName()
+    
+    self.notes = self.getNotes()
+    self.notesNames = self.getNotesNames()
     
   def simplifyKey(self):
     equiv = {
@@ -88,9 +90,8 @@ class Key:
     elif self.type != 'm' and self.root.name in ["G","D","A","E","B","F#","C#"]: 
       self.sign = '#'
   
-  def setNotes(self):
-    self.notes = []
-    self.notesNames = []
+  def getNotes(self):
+    notes = []
     if self.type =='m': 
       scale = minorScale
     else:
@@ -98,10 +99,21 @@ class Key:
       
     for noteNum in scale:
       note = Note(self.root.index+noteNum, self.sign)
-      self.notes.append(note)   
-      self.notesNames.append(note.name)   
-    return self
+      notes.append(note)     
+    return notes
       
+  def getNotesNames(self):
+    names = []
+    for note in self.notes:
+      names.append(note.name)
+    return names 
+      
+  def getNotesIndex(self):
+    indexes = []
+    for note in self.notes:
+      indexes.append(note.index)
+    return indexes  
+  
   def setName(self):  
     self.name = self.root.name+self.type
     return self

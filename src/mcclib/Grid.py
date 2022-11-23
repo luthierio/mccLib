@@ -71,7 +71,7 @@ class Grid:
     measures = []
     for measure in re.split(measureSplit, line):
       if measure and measure.strip():
-        measures.append(mccMeasure(measure)) 
+        measures.append(mccMeasure(measure, self.key)) 
     return measures
         
   def transpose(self,interval):  
@@ -115,7 +115,8 @@ class Grid:
 
 class mccMeasure:
 
-  def __init__(self, measure,beats = 2):
+  def __init__(self, measure,key,beats = 2):
+    self.key = key
     self.src = measure.strip()
     self.measure = measure.strip()
     self.chords = []  
@@ -139,7 +140,7 @@ class mccMeasure:
       if chord.strip() == '÷' :
         self.repeat = True
       elif chord.strip():
-        self.chords.append(Chord(chord.strip()))
+        self.chords.append(Chord(chord.strip(), self.key))
     
   def __str__(self):
   
