@@ -59,7 +59,6 @@ class Note:
         return noteNames[num-1]+'#'
         
   def getIndexFromName(self,name): 
-   
       alt = 0    
       if len(name) > 1:
         nbrAlt = len(name)-1

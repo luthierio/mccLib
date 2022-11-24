@@ -115,12 +115,13 @@ class Grid:
 
 class mccMeasure:
 
-  def __init__(self, measure,key,beats = 2):
+  def __init__(self, measure,key,beatsNum = 2):
     self.key = key
     self.src = measure.strip()
     self.measure = measure.strip()
     self.chords = []  
-    self.beats = beats
+    self.beats = []  
+    self.beatsNum = beatsNum
     self.coda = False
     self.repeat = False
     self.repeatStart = False
@@ -136,11 +137,17 @@ class mccMeasure:
       self.coda = int(re.search('\d+', self.measure).group(0))
       self.measure = self.measure.replace(str(self.coda),'').strip()      
     
-    for chord in self.measure.split() :
-      if chord.strip() == '÷' :
+    for beat in self.measure.split() :
+      if beat.strip() == '÷' :
         self.repeat = True
-      elif chord.strip():
-        self.chords.append(Chord(chord.strip(), self.key))
+        self.beats.append(Beat('÷'))
+      elif beat.strip() == '.' : #Repeat Beat
+        self.beats.append(Beat('.'))
+      elif beat.strip() == '-' : #Silence
+        self.beats.append(Beat('-'))
+      elif beat.strip():
+        self.chords.append(Chord(beat.strip(), self.key))
+        self.beats.append(Chord(beat.strip(), self.key))
     
   def __str__(self):
   
@@ -158,20 +165,29 @@ class mccMeasure:
       
     if self.repeat:
       txtMeasure += '÷ '
-      for x in range(0, self.beats):
-        txtMeasure += ' '*(max_chord_lenght)
+      for x in range(0, self.beatsNum):
+        txtMeasure += ' '*(max_beat_lenght)
     else:
-      for chord in self.chords :
-        txtMeasure += chord.__str__()+' '
-        for x in range(len(chord.__str__()), max_chord_lenght):
+      for beat in self.beats :
+        txtMeasure += beat.__str__()+' '
+        for x in range(len(chord.__str__()), max_beat_lenght):
           txtMeasure += ' '
-      if len(self.chords) < self.beats:
-        for x in range(len(self.chords), self.beats):
-          txtMeasure += ' '*(max_chord_lenght+1)
+      if len(self.beats) < self.beatsNum:
+        for x in range(len(self.beats), self.beatsNum):
+          txtMeasure += ' '*(max_beat_lenght+1)
       
     if self.repeatEnd:
       txtMeasure += ':'
     else:
       txtMeasure += ' '
     return txtMeasure
+    
+#****************
+# Beat Class
+
+class Beat:
+  def __init__(self, literal):
+    self.literal = literal
+  def __str__(self):
+    return self.literal
    
