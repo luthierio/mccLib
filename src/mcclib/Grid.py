@@ -74,15 +74,19 @@ class Grid:
         measures.append(mccMeasure(measure, self.key)) 
     return measures
         
-  def transpose(self,interval):  
+  def transpose(self,interval): 
+    print('---') 
+    print(interval,self.key )
     self.key.transpose(interval)
     self.src['key'] = self.key.name
-    
+    print(self.key )
     for name, section in self.grid.items():
       for line in section:
         for measure in line:
           for chord in measure.chords:
+            print(chord )
             chord.transpose(interval, self.key.sign)
+            print(chord )
     return self
           
   def yamlify(self):
@@ -211,9 +215,9 @@ class Beat:
       self.isChord = True
       self.chord = Chord(self.literal, key)
     
-    
   def __str__(self):
-    return self.literal
-  def __str__(self):
-    return self.literal
+    if self.isChord:
+      return self.chord.__str__()
+    else:
+      return self.literal
    
