@@ -76,7 +76,7 @@ class Chord:
 
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
   def __init__(self, chord, key= Key()):
-    self.chord = chord
+    self.literal = chord
     self.key = key
     self.name = ''
     self.root = ''
@@ -87,8 +87,8 @@ class Chord:
     self.notes = []
     self.notesNames = []
     
-    if isinstance(chord, str):
-      self.parseLiteralChord(chord)
+    if isinstance(self.literal, str):
+      self.parseLiteralChord(self.literal)
       #self.intervals = self.getInterval(self.num)
       self.notes = self.getNotes()
       self.notesNames = self.getNotesNames()
@@ -98,7 +98,7 @@ class Chord:
     self.name = lc
     chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°ø+]*)?([/][A-Z][b|#]?)?', lc)
     if not chordParts:
-      raise Exception("Format d'accord incorrect", lc,self.chord)
+      raise Exception("Format d'accord incorrect", lc,self.literal)
       
     self.root = Note(chordParts.group(1))
     self.sign = chordParts.group(3) if chordParts.group(3) else self.key.sign
@@ -131,6 +131,24 @@ class Chord:
     for note in self.notes:
       names.append(note.name)
     return names 
+    
+  def isDiatonic(self, key = False):
+    if not key:
+      key = self.key
+    test = True
+    for note in self.notes:
+      if note.index not in key.getNotesIndex():
+        return False
+    return test
+    
+  def getNonDiatonicNotes(self, key = False):
+    if not key:
+      key = self.key
+    nonDiatonic = []
+    for note in self.notes:
+      if note.index not in key.getNotesIndex():
+        nonDiatonic.append(note)
+    return nonDiatonic      
   
   def print(self):
     print(self,'\t',self.type,'\t',self.bass,'\t',self.intervals,'\t',self.notesNames)

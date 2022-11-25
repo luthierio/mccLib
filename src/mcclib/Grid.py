@@ -102,6 +102,16 @@ class Grid:
       file.write(self.__str__())
     return self
     
+  def getNonDiatonicChords(self):
+    nonDiatonic = []
+    for name, section in self.grid.items():
+      for line in section:
+        for measure in line:     
+          for chord in measure.chords:  
+            if not chord.isDiatonic():
+              nonDiatonic.append(chord)
+    return nonDiatonic      
+    
   def __str__(self):
     dist = dict(self.src)
     del dist['grid']    
@@ -115,7 +125,7 @@ class Grid:
 
 class mccMeasure:
 
-  def __init__(self, measure,key,beatsNum = 2):
+  def __init__(self, measure,key = Key(),beatsNum = 2):
     self.key = key
     self.src = measure.strip()
     self.measure = measure.strip()
@@ -137,21 +147,19 @@ class mccMeasure:
       self.coda = int(re.search('\d+', self.measure).group(0))
       self.measure = self.measure.replace(str(self.coda),'').strip()      
     
-    for beat in self.measure.split() :
-      if beat.strip() == '÷' :
-        self.repeat = True
-        self.beats.append(Beat('÷'))
-      elif beat.strip() == '.' : #Repeat Beat
-        self.beats.append(Beat('.'))
-      elif beat.strip() == '-' : #Silence
-        self.beats.append(Beat('-'))
-      elif beat.strip():
-        self.chords.append(Chord(beat.strip(), self.key))
-        self.beats.append(Chord(beat.strip(), self.key))
+    if self.measure.strip() == '÷':
+      self.repeat = True;
+    else:
+      for beat in self.measure.split() :
+        theBeat = Beat(beat.strip(), self.key)
+        self.beats.append(theBeat)
+        
+        if theBeat.isChord:
+          self.chords.append(theBeat.chord)
     
   def __str__(self):
   
-    max_chord_lenght = 10
+    max_beat_lenght = 10
     
     txtMeasure = ''
     if self.repeatStart:
@@ -170,7 +178,7 @@ class mccMeasure:
     else:
       for beat in self.beats :
         txtMeasure += beat.__str__()+' '
-        for x in range(len(chord.__str__()), max_beat_lenght):
+        for x in range(len(beat.__str__()), max_beat_lenght):
           txtMeasure += ' '
       if len(self.beats) < self.beatsNum:
         for x in range(len(self.beats), self.beatsNum):
@@ -186,8 +194,26 @@ class mccMeasure:
 # Beat Class
 
 class Beat:
-  def __init__(self, literal):
+  def __init__(self, literal, key = Key()):
+      
     self.literal = literal
+    self.isChord = False
+    self.isRepeat = False
+    self.isBreak = False
+    
+    if self.literal == '÷' :
+      self.isRepeat = True
+      
+    elif self.literal == '.' or self.literal == '-' : #Repeat Beat
+      self.isBreak = True
+      
+    elif self.literal:
+      self.isChord = True
+      self.chord = Chord(self.literal, key)
+    
+    
+  def __str__(self):
+    return self.literal
   def __str__(self):
     return self.literal
    
