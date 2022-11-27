@@ -51,6 +51,8 @@ class mccFile:
     if isinstance(mcc, dict):
       for name, section in mcc.items():
         grid[name]= self.parseSection(section)
+    elif isinstance(mcc, str):
+      grid[''] = self.parseSection(mcc)
     return grid
     
   def parseSection(self,section):
