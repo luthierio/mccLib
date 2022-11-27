@@ -39,7 +39,7 @@ from .Tools import *
 lineSplit = r'[\|\║\{\}]\s*[\|\║\{\}]'
 measureSplit = r'[\|\║\{\}]'
 
-class Grid: 
+class mccFile: 
   def __init__(self, yamlGrid):
     self.raw = yamlGrid 
     self.src = yaml.safe_load(yamlGrid)
@@ -75,18 +75,13 @@ class Grid:
     return measures
         
   def transpose(self,interval): 
-    print('---') 
-    print(interval,self.key )
     self.key.transpose(interval)
     self.src['key'] = self.key.name
-    print(self.key )
     for name, section in self.grid.items():
       for line in section:
         for measure in line:
           for chord in measure.chords:
-            print(chord )
             chord.transpose(interval, self.key.sign)
-            print(chord )
     return self
           
   def yamlify(self):
@@ -108,12 +103,14 @@ class Grid:
     
   def getNonDiatonicChords(self):
     nonDiatonic = []
+    literalChords = [] #Used to include only once each chord in array
     for name, section in self.grid.items():
       for line in section:
         for measure in line:     
           for chord in measure.chords:  
-            if not chord.isDiatonic():
+            if not chord.isDiatonic() and chord.literal not in literalChords:
               nonDiatonic.append(chord)
+              literalChords.append(chord.literal)
     return nonDiatonic      
     
   def __str__(self):
@@ -131,7 +128,7 @@ class mccMeasure:
 
   def __init__(self, measure,key = Key(),beatsNum = 2):
     self.key = key
-    self.src = measure.strip()
+    self.literal = measure.strip()
     self.measure = measure.strip()
     self.chords = []  
     self.beats = []  

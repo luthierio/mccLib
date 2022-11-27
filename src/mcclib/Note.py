@@ -16,7 +16,7 @@ noteNames = ["C","","D","","E","F","","G","","A","","B"]
 
 class Note:
   
-  #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
+  #Note is a integer from 0 to 11 or a name C#... sign force use of 'b' or '#' to name unamed notes
   def __init__(self, note, sign = ''):
     
     self.sign =  sign
@@ -80,7 +80,7 @@ class Note:
     
     
   def print(self):
-    print(self,'\t',self.name)
+    print(self.name.replace('b','♭'))
     
   def __str__(self):
     return f"{self.name}"

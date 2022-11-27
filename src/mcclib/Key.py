@@ -28,7 +28,7 @@ class Key:
     
     keyParts = re.search('(([ABCDEFG])([b|#])?)([mM])?', key)
     self.name = key
-    self.src = key
+    self.literal = key
     self.notes = []   
     self.notesNames = []   
     
