@@ -54,17 +54,31 @@ class mccFile:
     return grid
     
   def parseSection(self,section):
-    lines = []
+    aSection = {
+      'key':None,
+      'lines': [],
+    }
+    
+      
     if isinstance(section, list):
       for line in section:
-        lines.append(self.parseLine(line))
+        aSection.lines.append(self.parseLine(line))
     elif isinstance(section, str):
       if re.search(lineSplit, section):
         for line in re.split(lineSplit, section):
-          lines.append(self.parseLine(line))
+          aSection['lines'].append(self.parseLine(line))
       else:
-        lines.append(self.parseLine(section))
-    return lines
+        aSection['lines'].append(self.parseLine(section))
+    elif isinstance(section, dict) and 'key' in section:
+      aSection['key'] = Key(section['key'])
+      
+      key = self.key #stockage
+      self.key = Key(section['key'])
+      aSection['lines'] = self.parseSection(section['grid'])['lines']
+      aSection['key'] = self.key
+      self.key = key
+      
+    return aSection
       
   def parseLine(self,line):
     line = line.replace("{","|").replace("}","|") #Simplify
@@ -78,7 +92,7 @@ class mccFile:
     self.key.transpose(interval)
     self.src['key'] = self.key.name
     for name, section in self.grid.items():
-      for line in section:
+      for line in section['lines']:
         for measure in line:
           for chord in measure.chords:
             chord.transpose(interval, self.key.sign)
@@ -87,13 +101,20 @@ class mccFile:
   def yamlify(self):
     sections = {}
     for name, section in self.grid.items():
-      sections[name] = ""
-      for line in section:
+      grid = ''  
+      for line in section['lines']:
         lineTxt = '|'
         for measure in line:          
           lineTxt += measure.__str__()+'|'
         lineTxt = lineTxt.replace("|:","{:").replace(":|",":}")
-        sections[name] += literal_unicode(u''+lineTxt+'\n')
+        grid += literal_unicode(u''+lineTxt+'\n')
+
+      if section['key'] != None:
+        sections[name] =  {'key':section['key'].literal,'grid':grid}
+        #print(self.src['name'], name, sections[name])
+      else:
+        sections[name] = grid    
+      
     return sections
   
   def saveTo(self,path):
@@ -105,7 +126,7 @@ class mccFile:
     nonDiatonic = []
     literalChords = [] #Used to include only once each chord in array
     for name, section in self.grid.items():
-      for line in section:
+      for line in section['lines']:
         for measure in line:     
           for chord in measure.chords:  
             if not chord.isDiatonic() and chord.literal not in literalChords:
