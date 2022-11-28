@@ -94,10 +94,13 @@ class mccFile:
     self.key.transpose(interval)
     self.src['key'] = self.key.name
     for name, section in self.grid.items():
+      key = self.key
+      if section['key']:
+        key = section['key'].transpose(interval)
       for line in section['lines']:
         for measure in line:
           for chord in measure.chords:
-            chord.transpose(interval, self.key.sign)
+            chord.transpose(interval, key.sign)
     return self
           
   def yamlify(self):
