@@ -70,6 +70,7 @@ chordTypes = {
   "aug" :[0,4,8],
   
   "5+11+"  :[0,4,8,6],
+  #"3b9"  :[0,1,2,3,4,5,6,7,8,9,10,11],
 }  
 
 class Chord:
@@ -96,12 +97,14 @@ class Chord:
   def parseLiteralChord(self,lc):
       
     self.name = lc
-    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-9°ø+]*)?([/][A-Z][b|#]?)?', lc)
+    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-90-9°ø+]*)?([/][A-Z][b|#]?)?', lc)
     if not chordParts:
-      raise Exception("Format d'accord incorrect", lc,self.literal)
+      print("Format d'accord incorrect",lc,self.literal)
+      #return False
+      raise Exception("Format d'accord incorrect: '"+self.literal+"'")
       
-    self.root = Note(chordParts.group(1))
     self.sign = chordParts.group(3) if chordParts.group(3) else self.key.sign
+    self.root = Note(chordParts.group(1),self.sign)
     self.type = chordParts.group(4) if chordParts.group(4) else ''
     if chordParts.group(5):
     	self.bass = Note(chordParts.group(5)[1:],self.sign)

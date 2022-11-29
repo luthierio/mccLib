@@ -21,25 +21,24 @@ class Note:
     
     self.sign =  sign
     
-    self.root = '' #Si altération, la racine de la note: C#, root = C
+    self.root = '?' #Si altération, la racine de la note: C#, root = C
     self.alt = ''
     self.name = ''
-    self.temperName = ''
-    self.index = ''
+    self.index = '' 
 
     if isinstance(note, str):
-      self.root = note[0] 
+      self.name = note
       if len(note) > 1:    
-        self.alt = note[1]
-        self.sign = self.alt if self.sign == '' else self.sign 
-        
+        self.sign = self.alt if self.sign == '' else self.sign         
       self.index = self.getIndexFromName(note)
         
     elif isinstance(note, int):
-      self.index = self.getIndexFromNum(note)
-    
-    self.name = self.getNameFromIndex(self.index)
-  
+      self.index = self.getIndexFromNum(note)    
+      self.name = self.getNameFromIndex(self.index)
+      
+    self.root = self.name[0] 
+    if len(self.name) > 1:    
+      self.alt = self.name[1]
       
   def getIndexFromNum(self,num):
     if abs(num) not in range(0, 11):
@@ -79,8 +78,8 @@ class Note:
     return self
     
     
-  def print(self):
-    print(self.name.replace('b','♭'))
+  def format(self):
+    return self.name.replace('b','♭')
     
   def __str__(self):
     return f"{self.name}"

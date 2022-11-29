@@ -11,7 +11,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
-
+import pprint
+prettyPrint = pprint.PrettyPrinter(indent=4)
 import yaml
 from yaml.representer import SafeRepresenter
 
@@ -111,7 +112,6 @@ class mccFile:
         lineTxt = '|'
         for measure in line:          
           lineTxt += measure.__str__()+'|'
-        lineTxt = lineTxt.replace("|:","{:").replace(":|",":}")
         grid += literal_unicode(u''+lineTxt+'\n')
 
       if section['key'] != None:
@@ -127,17 +127,31 @@ class mccFile:
       file.write(self.__str__())
     return self
     
-  def getNonDiatonicChords(self):
-    nonDiatonic = []
-    literalChords = [] #Used to include only once each chord in array
+  def getAnalysis(self):
+    analysis = {
+      'sections':{},
+      'keys':{},
+      'nonDiatonicChords':{},
+    }
     for name, section in self.grid.items():
+      key = section['key'] if section['key'] else self.key
+      analysis['sections'][name] = {
+        'key':key,
+        'nonDiatonicChords':{},
+      }
+      if key.name not in analysis['keys']:
+        analysis['keys'][key.name] = {
+          'key': self.key,
+          'nonDiatonicChords':{},
+        }
       for line in section['lines']:
         for measure in line:     
           for chord in measure.chords:  
-            if not chord.isDiatonic() and chord.literal not in literalChords:
-              nonDiatonic.append(chord)
-              literalChords.append(chord.literal)
-    return nonDiatonic      
+            if not chord.isDiatonic():
+              analysis['sections'][name]['nonDiatonicChords'][chord.literal] = chord
+              analysis['keys'][key.name]['nonDiatonicChords'][chord.literal] = chord
+              analysis['nonDiatonicChords'][chord.literal] = chord
+    return analysis    
     
   def __str__(self):
     dist = dict(self.src)
@@ -172,7 +186,7 @@ class mccMeasure:
     
     if re.match('\d+', self.measure):
       self.coda = int(re.search('\d+', self.measure).group(0))
-      self.measure = self.measure.replace(str(self.coda),'').strip()      
+      self.measure = self.measure[1:]     
     
     if self.measure.strip() == '÷':
       self.repeat = True;
@@ -186,7 +200,7 @@ class mccMeasure:
     
   def __str__(self):
   
-    max_beat_lenght = 10
+    max_beat_lenght = 12
     
     txtMeasure = ''
     if self.repeatStart:
@@ -234,9 +248,9 @@ class Beat:
     elif self.literal == '.' or self.literal == '-' : #Repeat Beat
       self.isBreak = True
       
-    elif self.literal:
+    elif self.literal.replace('(','').replace(')',''):
       self.isChord = True
-      self.chord = Chord(self.literal, key)
+      self.chord = Chord(self.literal.replace('(','').replace(')',''), key)
     
   def __str__(self):
     if self.isChord:
