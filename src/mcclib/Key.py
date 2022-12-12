@@ -86,13 +86,7 @@ class Key:
       
     
   def getNotes(self):
-    notes = []
-    if self.type =='m':
-      notes = list(set(list(chain(Scale(self.root,'minor harmonic').notes(), Scale(self.root,'minor melodic').notes(), Scale(self.root,'minor natural').notes()))))
-    else:
-      notes = Scale(self.literal).notes()
-      
-    return notes
+    return Scale(self.literal).notes()
       
   def getNotesNames(self):
     names = []
