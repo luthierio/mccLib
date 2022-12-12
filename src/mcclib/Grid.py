@@ -11,8 +11,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
-import pprint
-prettyPrint = pprint.PrettyPrinter(indent=4)
+
 import yaml
 from yaml.representer import SafeRepresenter
 
@@ -40,7 +39,7 @@ from .Tools import *
 lineSplit = r'[\|\║\{\}]\s*[\|\║\{\}]'
 measureSplit = r'[\|\║\{\}]'
 
-class mccFile: 
+class Grid: 
   def __init__(self, yamlGrid):
     self.raw = yamlGrid 
     self.src = yaml.safe_load(yamlGrid)
@@ -52,36 +51,20 @@ class mccFile:
     if isinstance(mcc, dict):
       for name, section in mcc.items():
         grid[name]= self.parseSection(section)
-    elif isinstance(mcc, str):
-      grid[''] = self.parseSection(mcc)
     return grid
     
   def parseSection(self,section):
-    aSection = {
-      'key':None,
-      'lines': [],
-    }
-    
-      
+    lines = []
     if isinstance(section, list):
       for line in section:
-        aSection.lines.append(self.parseLine(line))
+        lines.append(self.parseLine(line))
     elif isinstance(section, str):
       if re.search(lineSplit, section):
         for line in re.split(lineSplit, section):
-          aSection['lines'].append(self.parseLine(line))
+          lines.append(self.parseLine(line))
       else:
-        aSection['lines'].append(self.parseLine(section))
-    elif isinstance(section, dict) and 'key' in section:
-      aSection['key'] = Key(section['key'])
-      
-      key = self.key #stockage
-      self.key = Key(section['key'])
-      aSection['lines'] = self.parseSection(section['grid'])['lines']
-      aSection['key'] = self.key
-      self.key = key
-      
-    return aSection
+        lines.append(self.parseLine(section))
+    return lines
       
   def parseLine(self,line):
     line = line.replace("{","|").replace("}","|") #Simplify
@@ -91,67 +74,33 @@ class mccFile:
         measures.append(mccMeasure(measure, self.key)) 
     return measures
         
-  def transpose(self,interval): 
+  def transpose(self,interval):  
     self.key.transpose(interval)
     self.src['key'] = self.key.name
+    
     for name, section in self.grid.items():
-      key = self.key
-      if section['key']:
-        key = section['key'].transpose(interval)
-      for line in section['lines']:
+      for line in section:
         for measure in line:
           for chord in measure.chords:
-            chord.transpose(interval, key.sign)
+            chord.transpose(interval, self.key.sign)
     return self
           
   def yamlify(self):
     sections = {}
     for name, section in self.grid.items():
-      grid = ''  
-      for line in section['lines']:
+      sections[name] = ""
+      for line in section:
         lineTxt = '|'
         for measure in line:          
           lineTxt += measure.__str__()+'|'
-        grid += literal_unicode(u''+lineTxt+'\n')
-
-      if section['key'] != None:
-        sections[name] =  {'key':section['key'].literal,'grid':grid}
-        #print(self.src['name'], name, sections[name])
-      else:
-        sections[name] = grid    
-      
+        lineTxt = lineTxt.replace("|:","{:").replace(":|",":}")
+        sections[name] += literal_unicode(u''+lineTxt+'\n')
     return sections
   
   def saveTo(self,path):
     with open(path, "w") as file:
       file.write(self.__str__())
     return self
-    
-  def getAnalysis(self):
-    analysis = {
-      'sections':{},
-      'keys':{},
-      'nonDiatonicChords':{},
-    }
-    for name, section in self.grid.items():
-      key = section['key'] if section['key'] else self.key
-      analysis['sections'][name] = {
-        'key':key,
-        'nonDiatonicChords':{},
-      }
-      if key.name not in analysis['keys']:
-        analysis['keys'][key.name] = {
-          'key': key,
-          'nonDiatonicChords':{},
-        }
-      for line in section['lines']:
-        for measure in line:     
-          for chord in measure.chords:  
-            if not chord.isDiatonic():
-              analysis['sections'][name]['nonDiatonicChords'][chord.literal] = chord
-              analysis['keys'][key.name]['nonDiatonicChords'][chord.literal] = chord
-              analysis['nonDiatonicChords'][chord.literal] = chord
-    return analysis    
     
   def __str__(self):
     dist = dict(self.src)
@@ -166,9 +115,9 @@ class mccFile:
 
 class mccMeasure:
 
-  def __init__(self, measure,key = Key(),beatsNum = 2):
+  def __init__(self, measure,key,beatsNum = 2):
     self.key = key
-    self.literal = measure.strip()
+    self.src = measure.strip()
     self.measure = measure.strip()
     self.chords = []  
     self.beats = []  
@@ -186,21 +135,23 @@ class mccMeasure:
     
     if re.match('\d+', self.measure):
       self.coda = int(re.search('\d+', self.measure).group(0))
-      self.measure = self.measure[1:]     
+      self.measure = self.measure.replace(str(self.coda),'').strip()      
     
-    if self.measure.strip() == '÷':
-      self.repeat = True;
-    else:
-      for beat in self.measure.split() :
-        theBeat = Beat(beat.strip(), self.key)
-        self.beats.append(theBeat)
-        
-        if theBeat.isChord:
-          self.chords.append(theBeat.chord)
+    for beat in self.measure.split() :
+      if beat.strip() == '÷' :
+        self.repeat = True
+        self.beats.append(Beat('÷'))
+      elif beat.strip() == '.' : #Repeat Beat
+        self.beats.append(Beat('.'))
+      elif beat.strip() == '-' : #Silence
+        self.beats.append(Beat('-'))
+      elif beat.strip():
+        self.chords.append(Chord(beat.strip(), self.key))
+        self.beats.append(Chord(beat.strip(), self.key))
     
   def __str__(self):
   
-    max_beat_lenght = 12
+    max_chord_lenght = 10
     
     txtMeasure = ''
     if self.repeatStart:
@@ -219,7 +170,7 @@ class mccMeasure:
     else:
       for beat in self.beats :
         txtMeasure += beat.__str__()+' '
-        for x in range(len(beat.__str__()), max_beat_lenght):
+        for x in range(len(chord.__str__()), max_beat_lenght):
           txtMeasure += ' '
       if len(self.beats) < self.beatsNum:
         for x in range(len(self.beats), self.beatsNum):
@@ -235,26 +186,8 @@ class mccMeasure:
 # Beat Class
 
 class Beat:
-  def __init__(self, literal, key = Key()):
-      
+  def __init__(self, literal):
     self.literal = literal
-    self.isChord = False
-    self.isRepeat = False
-    self.isBreak = False
-    
-    if self.literal == '÷' :
-      self.isRepeat = True
-      
-    elif self.literal == '.' or self.literal == '-' : #Repeat Beat
-      self.isBreak = True
-      
-    elif self.literal.replace('(','').replace(')',''):
-      self.isChord = True
-      self.chord = Chord(self.literal.replace('(','').replace(')',''), key)
-    
   def __str__(self):
-    if self.isChord:
-      return self.chord.__str__()
-    else:
-      return self.literal
+    return self.literal
    

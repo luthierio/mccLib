@@ -12,11 +12,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
 
-import re
 from .Note import Note
-#! numéros de notes, donc intervales depuis la fondamentale des notes de la gamme
-majorScale = [0,2,4,5,7,9,11]
-minorScale = [0,2,3,5,7,8,10,11]
+from .Scale import Scale
+from .Signature import Signature
+from .literals import parseKey
+from itertools import chain
 
 class Key:
   
@@ -26,15 +26,16 @@ class Key:
     default = {'simplify':True}
     options = {**default, **options}
     
-    keyParts = re.search('(([ABCDEFG])([b|#])?)([mM])?', key)
+    keyParts = parseKey(key)
     self.name = key
     self.literal = key
     self.notes = []   
     self.notesNames = []   
     
-    self.root = Note(keyParts.group(1)) 
-    self.sign = ''  
-    self.type = keyParts.group(4) if keyParts.group(4) else '' 
+    self.root = Note(keyParts['tonic']) 
+    self.sign = keyParts['alt']
+    self.type = keyParts['type']
+        
     if self.type == 'm':
       self.relative = Note(self.root.name).transpose(+3)
     else:
@@ -42,12 +43,15 @@ class Key:
       
     if options['simplify']:
       self.simplifyKey()  
-    self.setSignature()
+      
+    self.signature = Signature(self.root,self.type)
+    self.sign = self.signature.sign
     
     self.notes = self.getNotes()
     self.notesNames = self.getNotesNames()
     
   def simplifyKey(self):
+    #lors des transpositions, certains choix sont posés pour éviter des armures trop complexes
     equiv = {
       'Fb':'E', #oublier Fab
       'E#':'F', #oublier Mi#
@@ -79,28 +83,16 @@ class Key:
         self.root = Note(tokey)
         self.__init__(self.root.name+self.type)
     return self
-    
-  def setSignature(self):
-    if self.type == 'm' and self.root.name in ["Ab","Eb","Bb","F","C","G","D"]: 
-      self.sign = 'b'
-    elif self.type == 'm' and self.root.name in ["E","B","F#","C#","G#","D#","A#"]: 
-      self.sign = '#'
-    elif self.type != 'm' and self.root.name in ["Cb","Gb","Db","Ab","Eb","Bb","F"]: 
-      self.sign = 'b'
-    elif self.type != 'm' and self.root.name in ["G","D","A","E","B","F#","C#"]: 
-      self.sign = '#'
-  
-  def getNotes(self):
-    notes = []
-    if self.type =='m': 
-      scale = minorScale
-    else:
-      scale = majorScale
       
-    for noteNum in scale:
-      note = Note(self.root.index+noteNum, self.sign)
-      notes.append(note)     
-    return notes
+  def getScale(self):
+    scale = Scale(self.literal)
+    return scale
+    
+  def getNotes(self):
+  
+    scale = Scale(self.literal)
+      
+    return scale.notes()
       
   def getNotesNames(self):
     names = []

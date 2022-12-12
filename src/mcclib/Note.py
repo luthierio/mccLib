@@ -28,18 +28,21 @@ class Note:
 
     if isinstance(note, str):
       self.name = note
-      if len(note) > 1:    
-        self.sign = self.alt if self.sign == '' else self.sign         
       self.index = self.getIndexFromName(note)
         
     elif isinstance(note, int):
       self.index = self.getIndexFromNum(note)    
       self.name = self.getNameFromIndex(self.index)
-      
-    self.root = self.name[0] 
-    if len(self.name) > 1:    
-      self.alt = self.name[1]
-      
+
+    if len(self.name) == 2:    
+      self.root = self.name[0]
+      self.alt = self.name[1]       
+    elif len(self.name) == 1:
+      self.root = self.name
+              
+    self.sign = self.alt if self.sign == '' else self.sign  
+    
+            
   def getIndexFromNum(self,num):
     if abs(num) not in range(0, 11):
       num = num % 12
@@ -70,7 +73,13 @@ class Note:
         root = name  
       
       return self.getIndexFromNum(noteNames.index(root)+alt)
-           
+
+  def isDiatonic(self, key):
+    test = True
+    if self.index not in key.getNotesIndex():
+      return False
+    return test
+               
   def transpose(self,interval,sign = ''):  
     if not sign:
       sign = self.sign
