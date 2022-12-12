@@ -84,15 +84,15 @@ class Key:
         self.__init__(self.root.name+self.type)
     return self
       
-  def getScale(self):
-    scale = Scale(self.literal)
-    return scale
     
   def getNotes(self):
-  
-    scale = Scale(self.literal)
+    notes = []
+    if self.type =='m':
+      notes = list(set(list(chain(Scale(self.root,'minor harmonic').notes(), Scale(self.root,'minor melodic').notes(), Scale(self.root,'minor natural').notes()))))
+    else:
+      notes = Scale(self.literal).notes()
       
-    return scale.notes()
+    return notes
       
   def getNotesNames(self):
     names = []

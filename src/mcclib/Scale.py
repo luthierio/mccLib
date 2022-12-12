@@ -38,10 +38,11 @@ scaleAbrv = {
 }
 scaleTypes = {
   'major': majorScale,
-  
   'minor': minorScale,
+  
   'minor harmonic': minorHarmonicScale,
   'minor melodic': minorMelodicScale,
+  
   'eolien': minorNaturalScale,
   'minor natural' : minorNaturalScale,
 }
@@ -88,21 +89,10 @@ class Scale:
         if self.name not in scaleTypes:  
           raise ValueError(self.name," n'est pas un type de gamme valable")
         
+        self.type = '' if self.name == 'major' else 'm'
         #TODO comment déterminer si armature en diez ou bémol si je pense une gamme autre que major ou minor?????  
-        self.signature = Signature(self.tonic,('' if self.name == 'major' else 'm'))
+        self.signature = Signature(self.tonic,self.type)
         
-        '''
-        if isinstance(scale, str):
-            # Traitement des valeurs si la classe est initialisée avec un string littéral
-            self.tonic = Note(tonic)
-        elif isinstance(values, list):
-            # Traitement des valeurs si la classe est initialisée avec un tableau
-            self.tonic = tonic
-        else:
-            raise ValueError("La tonique doit être une instance de Note() ou de str")
-            
-        self.mode = mode
-        '''
     def notes(self):
         # Génération des notes de la gamme en fonction de sa tonique et de son mode
         # Retourne un tableau de notes de la gamme
@@ -112,6 +102,12 @@ class Scale:
           note = Note(self.tonic.index+noteNum, self.signature.sign)
           notes.append(note)  
         return notes
+
+    def chords(self):
+        # Génération des accords de la gamme en fonction de sa tonique et de son mode
+        # Retourne un tableau d'accords de la gamme 
+        chords = []
+                
 '''        
     def intervals(self):
         # Génération des intervalles de la gamme en fonction de sa tonique et de son mode
