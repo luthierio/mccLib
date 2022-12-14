@@ -49,9 +49,10 @@ class mccFile:
     self.key = Key(self.src['key'])  
     if 'mode' in self.src:
       self.scale = Scale(self.src['key'],self.src['mode'])
-      print(self.scale)
+      self.context = self.scale
     else:
       self.scale = Scale(self.src['key'])
+      self.context = self.scale
       
     self.grid = self.parseMcc(self.src['grid'])
       
@@ -61,10 +62,13 @@ class mccFile:
       for name, section in mcc.items():
         grid[name]= self.parseSection(section)
     elif isinstance(mcc, str):
-      grid[''] = self.parseSection(mcc)
+      grid[''] = self.parseSection(mcc,)
     return grid
     
-  def parseSection(self,section):
+  def parseSection(self,section, context = None):
+    if not context:
+      context = self.context
+      
     aSection = {
       'key':None,
       'lines': [],
@@ -73,30 +77,28 @@ class mccFile:
       
     if isinstance(section, list):
       for line in section:
-        aSection.lines.append(self.parseLine(line))
+        aSection.lines.append(self.parseLine(line,context))
+        
     elif isinstance(section, str):
       if re.search(lineSplit, section):
         for line in re.split(lineSplit, section):
-          aSection['lines'].append(self.parseLine(line))
+          aSection['lines'].append(self.parseLine(line,context))
       else:
-        aSection['lines'].append(self.parseLine(section))
+        aSection['lines'].append(self.parseLine(section,context))
+        
     elif isinstance(section, dict) and 'key' in section:
-      aSection['key'] = Key(section['key'])
-      
-      key = self.key #stockage
-      self.key = Key(section['key'])
-      aSection['lines'] = self.parseSection(section['grid'])['lines']
-      aSection['key'] = self.key
-      self.key = key
+      sectionContext = Key(section['key'])   
+      aSection['key'] = Key(section['key'])      
+      aSection['lines'] = self.parseSection(section['grid'],sectionContext)['lines']
       
     return aSection
       
-  def parseLine(self,line):
+  def parseLine(self,line, context):
     line = line.replace("{","|").replace("}","|") #Simplify
     measures = []
     for measure in re.split(measureSplit, line):
       if measure and measure.strip():
-        measures.append(mccMeasure(measure, key = self.key, context = self)) 
+        measures.append(mccMeasure(measure, context)) 
     return measures
         
   def transpose(self,interval): 
@@ -174,14 +176,10 @@ class mccFile:
 
 class mccMeasure:
 
-  def __init__(self, measure,**options):  
+  def __init__(self, measure,context):  
   
-    default = {'key':Key(),'beatsNum':2}
-    self.options = {**default, **options}
-      
-    self.key = self.options['key']
-    self.context = self.options['context']
-    self.beatsNum = self.options['beatsNum']
+    self.context = context
+    self.beatsNum = 2
     
     self.literal = measure.strip()
     self.measure = measure.strip()
@@ -206,7 +204,7 @@ class mccMeasure:
       self.repeat = True;
     else:
       for beat in self.measure.split() :
-        theBeat = Beat(beat.strip(), key = self.key, context = self.context)
+        theBeat = Beat(beat.strip(), context = self.context)
         self.beats.append(theBeat)
         
         if theBeat.isChord:
@@ -249,12 +247,9 @@ class mccMeasure:
 # Beat Class
 
 class Beat:
-  def __init__(self, literal, **options):
+  def __init__(self, literal, context):
 
-    default = {'key':Key()}
-    self.options = {**default, **options}      
-    self.key = self.options['key']  
-    self.context = self.options['context']
+    self.context = context
           
     self.literal = literal
     self.isChord = False
@@ -269,7 +264,7 @@ class Beat:
       
     elif self.literal.replace('(','').replace(')',''):
       self.isChord = True
-      self.chord = Chord(self.literal.replace('(','').replace(')',''), key = self.key, context = self.context)
+      self.chord = Chord(self.literal.replace('(','').replace(')',''), context = self.context)
     
   def __str__(self):
     if self.isChord:

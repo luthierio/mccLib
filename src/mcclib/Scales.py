@@ -126,35 +126,23 @@ class Scale:
         
         index = 0
         for interval in self.model['intervals']:
-          note = Note(self.tonic.index+index, self.signature.sign)
+          note = Note(self.tonic.index+index, self)
           #print(self.tonic.index,index, note.index)
           index = index+interval
           notes.append(note)  
         return notes
 
     def chords(self):
+        #harmonize
         from .Chords import Chord
         from .Keys import Key
         # Génération des accords de la gamme en fonction de sa tonique et de son mode
         # Retourne un tableau d'accords de la gamme 
         chords = [] 
         for i, note in enumerate(self.notes()):
-          chord = Chord(note.name+self.model['chords'][i], key = Key(self.tonic))
+          chord = Chord(note.name+self.model['chords'][i], self)
           chords.append(chord)  
         return chords
 
     def __str__(self):
-      return f"{self.tonic.name} {self.type}"                
-'''        
-    def intervals(self):
-        # Génération des intervalles de la gamme en fonction de sa tonique et de son mode
-        # Retourne un tableau d'intervalles de la gamme
-
-    def chords(self):
-        # Génération des accords de la gamme en fonction de sa tonique et de son mode
-        # Retourne un tableau d'accords de la gamme    
-        
-    def harmonize(self):
-        # Harmonisation de la gamme en utilisant les accords générés par la méthode chords
-        # Retourne une harmonisation de la gamme sous forme d'un tableau d'accords
-'''
+      return f"{self.tonic.name} {self.type}"     

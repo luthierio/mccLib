@@ -17,9 +17,18 @@ noteNames = ["C","","D","","E","F","","G","","A","","B"]
 class Note:
   
   #Note is a integer from 0 to 11 or a name C#... sign force use of 'b' or '#' to name unamed notes
-  def __init__(self, note, sign = ''):
+  def __init__(self, note, context = None):
     
-    self.sign =  sign
+    from .Scales import Scale
+    from .Chords import Chord
+    
+    self.context = context
+    if isinstance(context, str):
+      self.sign =  context
+    elif isinstance(context, Scale):
+      self.sign = context.signature.sign
+    elif isinstance(context, Chord):
+      self.sign = context.sign
     
     self.root = '?' #Si altération, la racine de la note: C#, root = C
     self.alt = ''
@@ -39,8 +48,9 @@ class Note:
       self.alt = self.name[1]       
     elif len(self.name) == 1:
       self.root = self.name
-              
-    self.sign = self.alt if self.sign == '' else self.sign  
+    
+    if not hasattr(self,'sign'):
+      self.sign = self.alt
     
             
   def getIndexFromNum(self,num):

@@ -79,13 +79,19 @@ chordTypes = {
 class Chord:
 
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
-  def __init__(self, chord, **options):
+  def __init__(self, chord, context = None):
   
     from .Keys import Key
+    from .Scales import Scale
     default = {'key':Key(),'context':{}}
-    self.options = {**default, **options}
-    self.key = self.options['key']
-    self.context = self.options['context']
+    
+    self.context = context
+    if isinstance(context, Scale):
+      self.sign = context.signature.sign
+      self.key = context.tonic
+    elif isinstance(context, Key):
+      self.sign = context.sign
+      self.key = context
         
     self.name = ''
     self.root = ''
@@ -93,21 +99,19 @@ class Chord:
     self.type = ''
     self.bass = ''
     self.intervals = []
-    self.notes = []
     self.notesNames = []
     
     if isinstance(chord, str):
       self.literal = chord
       parts = parseChord(chord)
       
-      self.sign = parts['sign'] if parts['sign'] else self.key.sign      
-      self.root = Note(parts['root'],self.sign) #On transmet le signe du contexte, dièze ou bémol
-      self.bass = Note(parts['bass'],self.sign) if parts['bass'] else ''      
+      self.sign = parts['sign'] if parts['sign'] else self.sign      
+      self.root = Note(parts['root'],self)
+      self.bass = Note(parts['bass'],self) if parts['bass'] else ''      
       self.type = parts['type']
 
 
-    self.intervals = chordTypes[self.type]     
-    self.notes = self.getNotes()
+    self.intervals = chordTypes[self.type] 
     self.notesNames = self.getNotesNames()
         
       
@@ -120,38 +124,47 @@ class Chord:
     
     return self
   
-  def getNotes(self):
+  def notes(self):
     notes = []
     if isinstance(self.bass,Note):
       notes.append(self.bass)
     for interval in self.intervals:
-      note = Note(self.root.index+interval,self.sign)
+      note = Note(self.root.index+interval,self)
       notes.append(note)
     return notes
     
   def getNotesNames(self):
     names = []
-    for note in self.notes:
+    for note in self.notes():
       names.append(note.name)
     return names 
     
-  def isDiatonic(self, key = False):
-    if not key:
-      key = self.key
+  def isDiatonic(self):
+    from .Keys import Key
+    from .Scales import Scale
+  
+    diatonicNotes = []
     test = True
-    for note in self.notes:
-      if note.index not in key.getNotesIndex():
-        return False
+    if isinstance(self.context, Scale) or isinstance(self.context, Key):
+      diatonicNotes = self.context.notes()
+      indexes = []
+      for note in diatonicNotes:
+        indexes.append(note.index)      
+      for note in self.notes():
+        if note.index not in indexes:
+          return False
     return test
     
+  '''
   def getNonDiatonicNotes(self, key = False):
     if not key:
       key = self.key
     nonDiatonic = []
-    for note in self.notes:
+    for note in self.notes():
       if note.index not in key.getNotesIndex():
         nonDiatonic.append(note)
     return nonDiatonic      
+  '''
   
   def print(self):
     print(self,'\t',self.type,'\t',self.bass,'\t',self.intervals,'\t',self.notesNames)

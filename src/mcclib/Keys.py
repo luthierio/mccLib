@@ -21,7 +21,7 @@ from itertools import chain
 class Key:
   
   #key is a note
-  def __init__(self, key = '', **options):
+  def __init__(self, key = None, **options):
   
     default = {'simplify':True}
     options = {**default, **options}
@@ -42,9 +42,6 @@ class Key:
       self.root = key 
       self.sign = key.sign
       
-      
-    self.notes = []   
-    self.notesNames = []   
     
         
     if self.type == 'm':
@@ -57,9 +54,6 @@ class Key:
       
     self.signature = Signature(self.root,self.type)
     self.sign = self.signature.sign
-    
-    self.notes = self.getNotes()
-    self.notesNames = self.getNotesNames()
     
   def simplifyKey(self):
     #lors des transpositions, certains choix sont posés pour éviter des armures trop complexes
@@ -105,7 +99,7 @@ class Key:
       scales.append(Scale(self.root,'major')) #Majeur
     return scales
     
-  def getNotes(self):
+  def notes(self):
     return Scale(self.literal).notes()
       
   def getNotesNames(self):
@@ -116,7 +110,7 @@ class Key:
       
   def getNotesIndex(self):
     indexes = []
-    for note in self.notes:
+    for note in self.notes():
       indexes.append(note.index)
     return indexes  
   
