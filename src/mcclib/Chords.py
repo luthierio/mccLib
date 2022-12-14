@@ -13,8 +13,8 @@
 #    Simon Daron 2022
 
 import re
-from .Note import Note
-from .Key import Key
+from .Notes import Note
+from .Literals import parseChord
 
 
 # distance of each notes from root
@@ -79,9 +79,14 @@ chordTypes = {
 class Chord:
 
   #Note is a integer from 0 to 11 or a name C#... context force use of 'b' or '#' to name unamed notes
-  def __init__(self, chord, key= Key()):
-    self.literal = chord
-    self.key = key
+  def __init__(self, chord, **options):
+  
+    from .Keys import Key
+    default = {'key':Key(),'context':{}}
+    self.options = {**default, **options}
+    self.key = self.options['key']
+    self.context = self.options['context']
+        
     self.name = ''
     self.root = ''
     self.alt = ''
@@ -91,28 +96,20 @@ class Chord:
     self.notes = []
     self.notesNames = []
     
-    if isinstance(self.literal, str):
-      self.parseLiteralChord(self.literal)
-      #self.intervals = self.getInterval(self.num)
-      self.notes = self.getNotes()
-      self.notesNames = self.getNotesNames()
+    if isinstance(chord, str):
+      self.literal = chord
+      parts = parseChord(chord)
       
-  def parseLiteralChord(self,lc):
-      
-    self.name = lc
-    chordParts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-90-9°ø+]*)?([/][A-Z][b|#]?)?', lc)
-    if not chordParts:
-      print("Format d'accord incorrect",lc,self.literal)
-      #return False
-      raise Exception("Format d'accord incorrect: '"+self.literal+"'")
-      
-    self.sign = chordParts.group(3) if chordParts.group(3) else self.key.sign
-    self.root = Note(chordParts.group(1),self.sign)
-    self.type = chordParts.group(4) if chordParts.group(4) else ''
-    if chordParts.group(5):
-    	self.bass = Note(chordParts.group(5)[1:],self.sign)
-    
-    self.intervals = chordTypes[self.type]
+      self.sign = parts['sign'] if parts['sign'] else self.key.sign      
+      self.root = Note(parts['root'],self.sign) #On transmet le signe du contexte, dièze ou bémol
+      self.bass = Note(parts['bass'],self.sign) if parts['bass'] else ''      
+      self.type = parts['type']
+
+
+    self.intervals = chordTypes[self.type]     
+    self.notes = self.getNotes()
+    self.notesNames = self.getNotesNames()
+        
       
   def transpose(self, interval, sign = ''):
   

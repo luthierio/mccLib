@@ -12,21 +12,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
 
-from .Notes import Note
-from .Chords import Chord
-from .Keys import Key
+import re
 
-def isDiatonic(Chord, Key):
-  test = True
-  for note in Chord.notes:
-    if note.index not in Key.getNotesIndex():
-      test = False
-  return test
-
-
-def getNonDiatonicNotes(Chord, Key):
-  nonDiatonic = []
-  for note in Chord.notes:
-    if note.index not in Key.getNotesIndex():
-      nonDiatonic.append(note)
-  return nonDiatonic      
+def parseKey(literalKey):
+  parts = re.search('(([ABCDEFG])([b|#])?)([mM])?', literalKey)
+  obj = {
+    'tonic': parts.group(1),
+    'root' : parts.group(2),
+    'alt'  : parts.group(3) if parts.group(3) else '',
+    'type' : parts.group(4) if parts.group(4) else '' ,
+  }
+  return obj
+  
+def parseChord(literalChord):
+  parts = re.search('(([ABCDEFG])([b|#])?)([A-Za-z0-90-9°ø+]*)?([/][A-Z][b|#]?)?', literalChord)
+  obj = {
+    'root' : parts.group(1),
+    'sign'  : parts.group(3) if parts.group(3) else '',
+    'type' : parts.group(4) if parts.group(4) else '' ,
+    'bass' : parts.group(5)[1:] if parts.group(5) else '' ,
+  }
+  return obj
