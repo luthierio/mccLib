@@ -31,9 +31,7 @@ import re
 import sys
 import os
     
-from .Note import Note
-from .Chord import Chord
-from .Key import Key
+from .Harmony import Note, Chord, Key
 from .Tools import *
 
 lineSplit = r'[\|\║\{\}]\s*[\|\║\{\}]'

@@ -12,9 +12,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    Simon Daron 2022
 
-from .Notes import Note
-from .Chords import Chord
-from .Keys import Key
+from .Harmony import Note, Chord, Key
 
 def isDiatonic(Chord, Key):
   test = True
