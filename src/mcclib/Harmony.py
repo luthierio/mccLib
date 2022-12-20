@@ -330,12 +330,12 @@ class Key:
   def scales(self):
     scales = []
     if self.type == 'minor':
-      scales.append(Scale(self.tonic,'mh')) #Mineur harmonique
-      scales.append(Scale(self.tonic,'mm')) #Mineur mélodique
+      scales.append(Scale(Key(self.tonic.name+'mh'))) #Mineur harmonique
+      scales.append(Scale(Key(self.tonic.name+'mm'))) #Mineur mélodique
     elif self.type == 'major':
-      scales.append(Scale(self.tonic,'major')) #Majeur
+      scales.append(Scale(self)) #Majeur
     return scales
-        
+  '''      
   def consonant():
     notes = []
     return notes
@@ -343,7 +343,7 @@ class Key:
   def dissonant():
     notes = []
     return notes     
-          
+  '''        
   def abbrv(self):
     for abbrv, atype in Abbrv.items():
       if self.type == atype:
@@ -442,16 +442,20 @@ class Chord:
     
   def consonant(self):
     notes = []    
+    indexes = []    
     for note in self.notes():
-      if note.index in self.key.notesIndex():
+      if note.index in self.key.notesIndex() and note.index not in indexes:
         notes.append(note)
+        indexes.append(note.index)
     return notes
 
   def dissonant(self):
     notes = []    
+    indexes = []   
     for note in self.notes():
-      if note.index not in self.key.notesIndex():
+      if note.index not in self.key.notesIndex() and note.index not in indexes:
         notes.append(note)
+        indexes.append(note.index)
     return notes
     
   def print(self):
@@ -469,12 +473,6 @@ class Chord:
 #################################
 # Scales
 #
-
-# Scale(Note('C'))
-# Scale('C')
-# Scale('Cm')
-# Scale('Cm', 'harmonic')
-# Scale('C' , 'mh')
     
 class Scale:
     def __init__(self, key, mode = False):
@@ -510,7 +508,7 @@ class Scale:
         return chords
 
     def __str__(self):
-      return f"{self.key.name}"           
+      return f"{self.key}"           
       
 
 class Signature:
