@@ -273,7 +273,7 @@ class Key:
       self.simplifyKey()  
 
     self.scale = Scale(self)      
-    self.signature = Signature(self.tonic,self.type)
+    self.signature = Signature(self)
     self.sign = self.signature.sign
     
   def simplifyKey(self):
@@ -514,29 +514,25 @@ class Scale:
 class Signature:
 
   #Note is a note, type is 'm' or '' (=M) or 'M'
-  def __init__(self, note, type = ''):
+  def __init__(self, key):
     
-    self.type = type
     self.sign = ''
     
-    if isinstance(note, str): 
-      self.note = Note(note)
-    elif isinstance(note, Note):   
-      self.note = note
-    else:
-      raise ValueError(note," n'est pas une note duquel on peut déduire une signature")          
+    if isinstance(key, str): 
+      self.key = Key(key)
+    elif isinstance(key, Key):   
+      self.key = key              
+        
+    if self.key.abbrv() == '': #Tonalité majeure
     
-    if self.note.sign == "b":
-      self.sign = "b"
-    elif self.note.sign == "#":
-      self.sign = "#"
-    elif self.type == 'm':
-      if self.note.name in ["F","C","G","D"]: 
+      if self.key.tonic.name in ["F"]: 
         self.sign = 'b'
-      elif self.note.name in ["E","B"]: 
-        self.sign = '#'
-    else: 
-      if self.note.name in ["F"]: 
+      elif self.key.tonic.name in ["G","D","A","E","B"]: 
+        self.sign = '#'  
+
+    else: #Une des tonalités mineures
+    
+      if self.key.tonic.name in ["F","C","G","D"]: 
         self.sign = 'b'
-      elif self.note.name in ["G","D","A","E","B"]: 
-        self.sign = '#'      
+      elif self.key.tonic.name in ["E","B"]: 
+        self.sign = '#'        
