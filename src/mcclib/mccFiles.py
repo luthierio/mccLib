@@ -43,9 +43,15 @@ class mccFile:
     self.raw = yamlGrid 
     self.src = yaml.safe_load(yamlGrid)
     
-    self.key = Key(self.src['key'])  
+    if 'key' in self.src:
+      self.key = Key(self.src['key'])  
+    else:
+      self.key = Key()
       
-    self.grid = self.parseMcc(self.src['grid'])
+    if 'grid' in self.src:
+      self.grid = self.parseMcc(self.src['grid'])
+    else:
+      self.grid = None
       
   def parseMcc(self,mcc):
     grid = {}
@@ -135,9 +141,11 @@ class mccFile:
     
   def keys(self):
     keys = []
+    keysNames = []
     keys.append(self.key)
+    keysNames.append(self.key.literal)
     for name, section in self.grid.items():
-      if section['key'] and section['key'] not in keys:
+      if section['key'] and section['key'].literal not in keysNames:
         keys.append(section['key'])
     return keys
   
@@ -269,6 +277,7 @@ class Beat:
     self.isChord = False
     self.isRepeat = False
     self.isBreak = False
+    self.isOption = False
     
     if self.literal == '÷' :
       self.isRepeat = True
@@ -276,13 +285,20 @@ class Beat:
     elif self.literal == '.' or self.literal == '-' : #Repeat Beat
       self.isBreak = True
       
-    elif self.literal.replace('(','').replace(')',''):
+    else:
+      if self.literal.find('(') != -1:
+        self.isOption = True
       self.isChord = True
-      self.chord = Chord(self.literal.replace('(','').replace(')',''), key = self.key)
+      self.chord = Chord(self.literal, key = self.key)
+      self.chord.isOption = self.isOption
+      
     
   def __str__(self):
     if self.isChord:
-      return self.chord.__str__()
+      if self.isOption:
+        return '('+self.chord.__str__()+')'
+      else:
+        return self.chord.__str__()
     else:
       return self.literal
    

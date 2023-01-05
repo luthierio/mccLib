@@ -104,7 +104,7 @@ minorMelodicScale       = {
 }
 minorScale       = {
   'intervals' : [2    ,1    ,2    ,2    ,1    ,1    ,1    ,1    ,1    ], 
-  'chords'    : ['m7' ,'ø'  , 'Δ' ,'m7' ,'7' ,None  ,None   ,'Δ'   ,'°'  ],
+  'chords'    : ['mΔ' ,'ø'  , '+Δ' ,'m7' ,'7' ,None  ,None   ,'Δ'   ,'°'  ],
 }
 
 #('minor harmonic', 5)
@@ -231,6 +231,9 @@ class Note:
     
   def __str__(self):
     return f"{self.name}"
+    
+  def __repr__(self):
+    return f"{self.name}"
 
 #################################
 # Key
@@ -332,7 +335,7 @@ class Key:
     if self.type == 'minor':
       scales.append(Scale(Key(self.tonic.name+'mh'))) #Mineur harmonique
       scales.append(Scale(Key(self.tonic.name+'mm'))) #Mineur mélodique
-    elif self.type == 'major':
+    else:
       scales.append(Scale(self)) #Majeur
     return scales
   '''      
@@ -361,6 +364,8 @@ class Key:
     else:
       return f"{self.tonic} {self.type}"
 
+  def __repr__(self):
+    return f"{self.__str__()}"
 #################################
 # Chords
 #
@@ -467,7 +472,9 @@ class Chord:
       return self.root.name+self.type+'/'+self.bass.name
     else:
       return self.root.name+self.type
-        
+
+  def __repr__(self):
+    return f"{self.__str__()}"        
 
 
 #################################
@@ -475,48 +482,50 @@ class Chord:
 #
     
 class Scale:
-    def __init__(self, key, mode = False):
-    
-        self.key = key
-        if not isinstance(self.key, Key): 
-          raise ValueError(self.key," n'est pas une toanlité")
-        
-        self.model = scaleModels[self.key.type]        
-        
-    def notes(self):
-        # Génération des notes de la gamme en fonction de sa tonique et de son mode
-        # Retourne un tableau de notes de la gamme
-        notes = []
-                
-        index = 0
-        for interval in self.model['intervals']:
-          note = Note(self.key.tonic.index+index, self.key)
-          index = index+interval
-          notes.append(note)  
-        return notes
-
-    def chords(self):
-        #harmonize
-        # Génération des accords de la gamme en fonction de sa tonique et de son mode
-        # Retourne un tableau d'accords de la gamme 
-        chords = [] 
-        for i, note in enumerate(self.notes()):
-          if self.model['chords'][i]:
-            #le test permet de ne pas harmoniser si None
-            chord = Chord(note.name+self.model['chords'][i], self.key)
-            chords.append(chord)  
-        return chords
-
-    def __str__(self):
-      return f"{self.key}"           
+  def __init__(self, key, mode = False):
+  
+      self.key = key
+      if not isinstance(self.key, Key): 
+        raise ValueError(self.key," n'est pas une toanlité")
       
+      self.model = scaleModels[self.key.type]        
+      
+  def notes(self):
+      # Génération des notes de la gamme en fonction de sa tonique et de son mode
+      # Retourne un tableau de notes de la gamme
+      notes = []
+              
+      index = 0
+      for interval in self.model['intervals']:
+        note = Note(self.key.tonic.index+index, self.key)
+        index = index+interval
+        notes.append(note)  
+      return notes
+
+  def chords(self):
+      #harmonize
+      # Génération des accords de la gamme en fonction de sa tonique et de son mode
+      # Retourne un tableau d'accords de la gamme 
+      chords = [] 
+      for i, note in enumerate(self.notes()):
+        if self.model['chords'][i]:
+          #le test permet de ne pas harmoniser si None
+          chord = Chord(note.name+self.model['chords'][i], self.key)
+          chords.append(chord)  
+      return chords
+
+  def __str__(self):
+    return f"{self.key}"           
+
+  def __repr__(self):
+    return f"{self.__str__()}"      
 
 class Signature:
 
   #Note is a note, type is 'm' or '' (=M) or 'M'
   def __init__(self, key):
     
-    self.sign = ''
+    self.sign = key.sign
     
     if isinstance(key, str): 
       self.key = Key(key)
@@ -535,4 +544,11 @@ class Signature:
       if self.key.tonic.name in ["F","C","G","D"]: 
         self.sign = 'b'
       elif self.key.tonic.name in ["E","B"]: 
-        self.sign = '#'        
+        self.sign = '#'  
+
+  def __str__(self):
+    return f"{self.sign}"           
+
+  def __repr__(self):
+    return f"{self.__str__()}"      
+              
